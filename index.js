@@ -7,8 +7,9 @@ var express = require("express"),
 	io = require("socket.io").listen(server);
 
 app.use(express.static(__dirname + '/public'));
-
 server.listen(1337);
+
+io.set('log level', 1); // reduce logging
 
 app.get("/", function(req, res) {
 	res.sendfile(__dirname + "/public/index.html");
