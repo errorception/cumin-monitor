@@ -23,13 +23,13 @@ function getQueues(done) {
 }
 
 function getQueueNames(done) {
-	redis.smembers("qminqueues", done);
+	redis.smembers("cuminqueues", done);
 }
 
 function getQueueDetails(queueName, done) {
 	async.parallel([
-		function(done) { redis.hgetall("qminmeta." + queueName, done); },
-		function(done) { redis.llen("qmin." + queueName, done); }
+		function(done) { redis.hgetall("cuminmeta." + queueName, done); },
+		function(done) { redis.llen("cumin." + queueName, done); }
 	], function(err, data) {
 		if(err) return done(err);
 
@@ -56,4 +56,4 @@ pubClient.on("message", function(event, details) {
 	});
 });
 
-pubClient.subscribe("qmin.dequeued", "qmin.enqueued");
+pubClient.subscribe("cumin.dequeued", "cumin.enqueued");

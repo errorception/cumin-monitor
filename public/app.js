@@ -45,10 +45,10 @@ if(document.querySelector) {
 		var node = document.querySelector("div[data-queue-name='" + queue.name + "']");
 
 		if(node) {
-			var selectorPrefix = "." + ({"qmin.enqueued": "leftOfQueue", "qmin.dequeued": "rightOfQueue"})[queue.event] + " ";
+			var selectorPrefix = "." + ({"cumin.enqueued": "leftOfQueue", "cumin.dequeued": "rightOfQueue"})[queue.event] + " ";
 			var arrow = node.querySelector(selectorPrefix + ".arrow");
 			if(arrow && arrow.classList) arrow.classList.add("pulse");
-			node.querySelector(selectorPrefix + ".date").innerHTML = timeDifference(queue.now, queue[({"qmin.enqueued": "lastEnqueued", "qmin.dequeued": "lastDequeued"})[queue.event]]);
+			node.querySelector(selectorPrefix + ".date").innerHTML = timeDifference(queue.now, queue[({"cumin.enqueued": "lastEnqueued", "cumin.dequeued": "lastDequeued"})[queue.event]]);
 			node.querySelector(".queueLength").innerHTML = formatCount(queue.count);
 		} else {
 			window.location.reload();
