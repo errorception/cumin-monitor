@@ -1,0 +1,105 @@
+<!doctype html>
+<title>qmin monitor</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="/bootstrap/css/bootstrap.min.css" rel="stylesheet" media="screen">
+<style>
+	.queueBlock {
+		text-align: center;
+	}
+
+	.queueBlock h3 {
+		font-family: Monaco,Menlo,Consolas,"Courier New",monospace;
+	}
+
+	.queueBlock .span6 {
+		background: #eee;
+		border: 1px solid #ccc;
+		border-radius: 5px;
+	}
+
+	.queueBlock .span3 {
+		padding-top: 30px;
+	}
+
+	.span3 .leftOfQueue {
+		color: #ccc;
+		text-align: right;
+	}
+
+	.span3 .rightOfQueue {
+		color: #ccc;
+		text-align: left;
+	}
+
+	.span3 .arrow {
+		font-size: 70px;
+		padding-bottom: 10px;
+	}
+
+	.span3 .date {
+		font-size: 14px;
+	}
+
+	.row-fluid {
+		margin-bottom: 25px;
+	}
+
+	.pulse {
+		-webkit-animation: pulse 0.5s;
+		animation: pulse 0.5s;
+	}
+
+	@-webkit-keyframes pulse {
+		0% { color: green; }
+		100% { color: #ccc; }
+	}
+
+	@keyframes pulse {
+		0% { color: green; }
+		100% { color: #ccc; }
+	}
+</style>
+
+<div class="container-fluid">
+	<div class="row-fluid">
+		<h1 class="text-center">Monitor yo' queues</h1>
+	</div>
+	<div class="row-fluid" style="padding-top: 100px;" id="pageLoading">
+		<div class="progress progress-striped active" style="width: 30%; margin: 0 auto;">
+			<div class="bar" style="width: 100%;"></div>
+		</div>
+		<p class="muted text-center">Loading...</p>
+	</div>
+
+	<div id="queueBlocks"></div>
+</div>
+
+<script type="text/template" id="queueTemplate">
+	<div class="span6 queueBlock" data-queue-name="">
+		<div class="row-fluid">
+			<div class="span3">
+				<div class="leftOfQueue">
+					<div class="arrow">
+						&#8594;
+					</div>
+					<div class="date"></div>
+				</div>
+			</div>
+			<div class="span6">
+				<h3></h3>
+				<h2 class="queueLength"></h2>
+			</div>
+			<div class="span3">
+				<div class="rightOfQueue">
+					<div class="arrow">
+						&#8594;
+					</div>
+					<div class="date"></div>
+				</div>
+			</div>
+		</div>
+	</div>
+</script>
+
+<script src="/socket.io/socket.io.js"></script>
+<script src="/app.js"></script>
