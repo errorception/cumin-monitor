@@ -7,14 +7,10 @@
 		text-align: center;
 	}
 
-	.queueBlock h3 {
-		font-family: Monaco,Menlo,Consolas,"Courier New",monospace;
-	}
-
 	.queueBlock .span6 {
-		background: #eee;
-		border: 1px solid #ccc;
+		border: 2px solid #ddd;
 		border-radius: 5px;
+		box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1)
 	}
 
 	.queueBlock .span3 {
@@ -22,22 +18,22 @@
 	}
 
 	.span3 .leftOfQueue {
-		color: #ccc;
 		text-align: right;
 	}
 
 	.span3 .rightOfQueue {
-		color: #ccc;
 		text-align: left;
 	}
 
 	.span3 .arrow {
 		font-size: 70px;
 		padding-bottom: 10px;
+		color: #ddd;
 	}
 
 	.span3 .date {
 		font-size: 14px;
+		color: #666;
 	}
 
 	.row-fluid {
@@ -75,8 +71,8 @@
 </div>
 
 <script type="text/template" id="queueTemplate">
-	<div class="span6 queueBlock" data-queue-name="">
-		<div class="row-fluid">
+	<div class="row-fluid">
+		<div class="span12 queueBlock" data-queue-name="">
 			<div class="span3">
 				<div class="leftOfQueue">
 					<div class="arrow">

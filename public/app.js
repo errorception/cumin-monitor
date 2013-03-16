@@ -23,18 +23,11 @@ function createQueueNode(queue) {
 socket.on("queues", function(queues) {
 	var frag = document.createDocumentFragment();
 
-	for(var i=0; i<queues.length; i+=2) {
-		var row = document.createElement("div");
-		row.className = "row-fluid";
+	var frag = queues.reduce(function(frag, queue) {
+		frag.appendChild(createQueueNode(queue));
+		return frag;
+	}, document.createDocumentFragment());
 
-		for(var j=0; j<2; j++) {
-			if(queues[i+j]) {
-				row.appendChild(createQueueNode(queues[i+j]));
-			}
-		}
-
-		frag.appendChild(row);
-	}
 	document.getElementById("pageLoading").style.display = "none";
 	document.getElementById("queueBlocks").innerHTML = "";
 	document.getElementById("queueBlocks").appendChild(frag);
@@ -62,7 +55,7 @@ if(document.querySelector) {
 
 function formatCount(count) {
 	return "<span style='color: " +
-		(count<10?"none":count<20?"#f89406":"#b94a48")
+		(count<50?"#468847":count<150?"#f89406":"#b94a48")
 		+ "'>" + count + "</span>";
 }
 
