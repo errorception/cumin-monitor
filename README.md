@@ -5,6 +5,8 @@ A monitoring tool for queues that have been created with the [cumin library](htt
 
 Lets you monitor queue activity: when were items last added and removed from queues, and what is the number of items currently in the queue.
 
+![Cumin Monitor Screenshot](https://raw.github.com/errorception/cumin-monitor/master/screen.png)
+
 ## Installation
 
 Install qmin-monitor via git:
