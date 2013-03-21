@@ -1,4 +1,4 @@
-var socket = io.connect("http://localhost:1337");
+var source = new EventSource("stream");
 
 function cleanupQueue(queue) {
 	queue.lastEnqueued = queue.lastEnqueued || 0;
@@ -20,7 +20,9 @@ function createQueueNode(queue) {
 	return div.childNodes[1];
 }
 
-socket.on("queues", function(queues) {
+source.addEventListener("queues", function(evt) {
+	var queues = JSON.parse(evt.data);
+
 	var frag = document.createDocumentFragment();
 
 	var frag = queues.reduce(function(frag, queue) {
@@ -31,10 +33,11 @@ socket.on("queues", function(queues) {
 	document.getElementById("pageLoading").style.display = "none";
 	document.getElementById("queueBlocks").innerHTML = "";
 	document.getElementById("queueBlocks").appendChild(frag);
-});
+}, false);
 
 if(document.querySelector) {
-	socket.on("queue", function(queue) {
+	source.addEventListener("queue", function(evt) {
+		var queue = JSON.parse(evt.data);
 		var node = document.querySelector("div[data-queue-name='" + queue.name + "']");
 
 		if(node) {
@@ -44,9 +47,9 @@ if(document.querySelector) {
 			node.querySelector(selectorPrefix + ".date").innerHTML = timeDifference(queue.now, queue[({"cumin.enqueued": "lastEnqueued", "cumin.dequeued": "lastDequeued"})[queue.event]]);
 			node.querySelector(".queueLength").innerHTML = formatCount(queue.count);
 		} else {
-			window.location.reload();
+			//window.location.reload();
 		}
-	});
+	}, false);
 
 	document.body.addEventListener("webkitAnimationEnd", function(ev) {
 		ev.target.classList && ev.target.classList.remove("pulse");

@@ -3,16 +3,29 @@ var express = require("express"),
 	redis = require("redis").createClient(),
 	pubClient = require("redis").createClient(),
 	app = express(),
-	server = require("http").createServer(app),
-	io = require("socket.io").listen(server);
+	server = require("http").createServer(app);
 
 app.use(express.static(__dirname + '/public'));
 server.listen(1337);
 
-io.set('log level', 1); // reduce logging
+var connectedClients = [];
 
 app.get("/", function(req, res) {
 	res.sendfile(__dirname + "/public/index.html");
+});
+
+app.get("/stream", function(req, res, next) {
+	connectedClients.push(res);
+
+	res.writeHead(200, {
+		"content-type": "text/event-stream"
+	})
+
+	getQueues(function(err, queues) {
+		if(err) return next(err);
+
+		res.write("event: queues\ndata: " + JSON.stringify(queues) + "\n\n");
+	});
 });
 
 function getQueues(done) {
@@ -42,18 +55,16 @@ function getQueueDetails(queueName, done) {
 	});
 }
 
-io.sockets.on("connection", function(socket) {
-	getQueues(function(err, queues) {
-		socket.emit("queues", queues);
-	});
-});
-
 pubClient.on("message", function(event, details) {
 	var details = JSON.parse(details);
 
 	getQueueDetails(details.queueName, function(err, queueInfo) {
 		queueInfo.event = event;
-		io.sockets.emit("queue", queueInfo);
+		
+		var queueInfoStringified = JSON.stringify(queueInfo);
+		connectedClients.forEach(function(client) {
+			client.write("event: queue\ndata: " + queueInfoStringified + "\n\n");
+		});
 	});
 });
 
