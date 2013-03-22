@@ -13,7 +13,9 @@ function createQueueNode(queue) {
 	var $ = function(x){ return div.querySelector(x); };
 	$(".queueBlock").setAttribute("data-queue-name", queue.name);
 	$(".leftOfQueue .date").innerHTML = queue.lastEnqueued?timeDifference(queue.now, queue.lastEnqueued):"";
+	$(".leftOfQueue .date").setAttribute("data-lastActivity", queue.lastEnqueued);
 	$(".rightOfQueue .date").innerHTML = queue.lastDequeued?timeDifference(queue.now, queue.lastDequeued):"";
+	$(".rightOfQueue .date").setAttribute("data-lastActivity", queue.lastDequeued);
 	$("h3").innerHTML = queue.name;
 	$("h2").innerHTML = formatCount(queue.count);
 
@@ -36,19 +38,32 @@ source.addEventListener("queues", function(evt) {
 }, false);
 
 if(document.querySelector) {
-	source.addEventListener("queue", function(evt) {
-		var queue = JSON.parse(evt.data);
-		var node = document.querySelector("div[data-queue-name='" + queue.name + "']");
+	source.addEventListener("update", function(evt) {
+		var queues = JSON.parse(evt.data);
 
-		if(node) {
-			var selectorPrefix = "." + ({"cumin.enqueued": "leftOfQueue", "cumin.dequeued": "rightOfQueue"})[queue.event] + " ";
-			var arrow = node.querySelector(selectorPrefix + ".arrow");
-			if(arrow && arrow.classList) arrow.classList.add("pulse");
-			node.querySelector(selectorPrefix + ".date").innerHTML = timeDifference(queue.now, queue[({"cumin.enqueued": "lastEnqueued", "cumin.dequeued": "lastDequeued"})[queue.event]]);
-			node.querySelector(".queueLength").innerHTML = formatCount(queue.count);
-		} else {
-			//window.location.reload();
-		}
+		queues.forEach(function(queueItem) {
+			var node = document.querySelector("div[data-queue-name='" + queueItem.name + "']");
+
+			if(node) {
+				var $ = function(x) { return node.querySelector(x); };
+
+				if($(".leftOfQueue .date").getAttribute("data-lastActivity") != queueItem.lastEnqueued) {
+					$(".leftOfQueue .arrow").classList.add("pulse");
+					$(".leftOfQueue .date").innerHTML = timeDifference(queueItem.now, queueItem.lastEnqueued);
+					$(".leftOfQueue .date").setAttribute("data-lastActivity", queueItem.lastEnqueued);
+				}
+
+				if($(".rightOfQueue .date").getAttribute("data-lastActivity") != queueItem.lastDequeued) {
+					$(".rightOfQueue .arrow").classList.add("pulse");
+					$(".rightOfQueue .date").innerHTML = timeDifference(queueItem.now, queueItem.lastDequeued);
+					$(".rightOfQueue .date").setAttribute("data-lastActivity", queueItem.lastDequeued);
+				}
+
+				$(".queueLength").innerHTML = formatCount(queueItem.count);
+			} else {
+				window.location.reload();
+			}
+		});
 	}, false);
 
 	document.body.addEventListener("webkitAnimationEnd", function(ev) {

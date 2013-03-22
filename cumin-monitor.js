@@ -1,7 +1,6 @@
 var express = require("express"),
 	async = require("async"),
 	redis = require("redis").createClient(),
-	pubClient = require("redis").createClient(),
 	app = express(),
 	server = require("http").createServer(app);
 
@@ -25,6 +24,10 @@ app.get("/stream", function(req, res, next) {
 		if(err) return next(err);
 
 		res.write("event: queues\ndata: " + JSON.stringify(queues) + "\n\n");
+	});
+
+	req.on("close", function() {
+		connectedClients.splice(connectedClients.indexOf(res), 1);
 	});
 });
 
@@ -55,17 +58,14 @@ function getQueueDetails(queueName, done) {
 	});
 }
 
-pubClient.on("message", function(event, details) {
-	var details = JSON.parse(details);
+setInterval(function() {
+	if(!connectedClients.length) return;
 
-	getQueueDetails(details.queueName, function(err, queueInfo) {
-		queueInfo.event = event;
-		
-		var queueInfoStringified = JSON.stringify(queueInfo);
+	getQueues(function(err, queues) {
+		var queuesStringified = JSON.stringify(queues);
+
 		connectedClients.forEach(function(client) {
-			client.write("event: queue\ndata: " + queueInfoStringified + "\n\n");
+			client.write("event: update\ndata: " + queuesStringified + "\n\n");
 		});
 	});
-});
-
-pubClient.subscribe("cumin.dequeued", "cumin.enqueued");
+}, 1000);
