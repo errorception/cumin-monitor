@@ -49,15 +49,16 @@ if(document.querySelector) {
 
 				if($(".leftOfQueue .date").getAttribute("data-lastActivity") != queueItem.lastEnqueued) {
 					$(".leftOfQueue .arrow").classList.add("pulse");
-					$(".leftOfQueue .date").innerHTML = timeDifference(queueItem.now, queueItem.lastEnqueued);
 					$(".leftOfQueue .date").setAttribute("data-lastActivity", queueItem.lastEnqueued);
 				}
+				$(".leftOfQueue .date").innerHTML = timeDifference(queueItem.now, queueItem.lastEnqueued);
+
 
 				if($(".rightOfQueue .date").getAttribute("data-lastActivity") != queueItem.lastDequeued) {
 					$(".rightOfQueue .arrow").classList.add("pulse");
-					$(".rightOfQueue .date").innerHTML = timeDifference(queueItem.now, queueItem.lastDequeued);
 					$(".rightOfQueue .date").setAttribute("data-lastActivity", queueItem.lastDequeued);
 				}
+				$(".rightOfQueue .date").innerHTML = timeDifference(queueItem.now, queueItem.lastDequeued);
 
 				$(".queueLength").innerHTML = formatCount(queueItem.count);
 			} else {
