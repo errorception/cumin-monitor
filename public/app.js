@@ -1,43 +1,23 @@
-var source = new EventSource("stream");
+var source;
 
-function cleanupQueue(queue) {
-	queue.lastEnqueued = queue.lastEnqueued || 0;
-	queue.lastDequeued = queue.lastDequeued || 0;
-	return queue;
-}
+function setup() {
+	source = new EventSource("stream");
 
-function createQueueNode(queue) {
-	var div = document.createElement("div");
-	div.innerHTML = document.getElementById("queueTemplate").innerHTML;
+	source.addEventListener("queues", function(evt) {
+		var queues = JSON.parse(evt.data);
 
-	var $ = function(x){ return div.querySelector(x); };
-	$(".queueBlock").setAttribute("data-queue-name", queue.name);
-	$(".leftOfQueue .date").innerHTML = queue.lastEnqueued?timeDifference(queue.now, queue.lastEnqueued):"";
-	$(".leftOfQueue .date").setAttribute("data-lastActivity", queue.lastEnqueued);
-	$(".rightOfQueue .date").innerHTML = queue.lastDequeued?timeDifference(queue.now, queue.lastDequeued):"";
-	$(".rightOfQueue .date").setAttribute("data-lastActivity", queue.lastDequeued);
-	$("h3").innerHTML = queue.name;
-	$("h2").innerHTML = formatCount(queue.count);
+		var frag = document.createDocumentFragment();
 
-	return div.childNodes[1];
-}
+		var frag = queues.reduce(function(frag, queue) {
+			frag.appendChild(createQueueNode(queue));
+			return frag;
+		}, document.createDocumentFragment());
 
-source.addEventListener("queues", function(evt) {
-	var queues = JSON.parse(evt.data);
+		document.getElementById("pageLoading").style.display = "none";
+		document.getElementById("queueBlocks").innerHTML = "";
+		document.getElementById("queueBlocks").appendChild(frag);
+	}, false);
 
-	var frag = document.createDocumentFragment();
-
-	var frag = queues.reduce(function(frag, queue) {
-		frag.appendChild(createQueueNode(queue));
-		return frag;
-	}, document.createDocumentFragment());
-
-	document.getElementById("pageLoading").style.display = "none";
-	document.getElementById("queueBlocks").innerHTML = "";
-	document.getElementById("queueBlocks").appendChild(frag);
-}, false);
-
-if(document.querySelector) {
 	source.addEventListener("update", function(evt) {
 		var queues = JSON.parse(evt.data);
 
@@ -66,11 +46,53 @@ if(document.querySelector) {
 			}
 		});
 	}, false);
-
-	document.body.addEventListener("webkitAnimationEnd", function(ev) {
-		ev.target.classList && ev.target.classList.remove("pulse");
-	});
 }
+
+setup();
+
+function togglePause() {
+	var button = document.getElementById("pauseGlyph");
+
+	if(source.readyState !== 2) {
+		source.close();
+		delete window.source;
+		button.classList.remove("icon-pause");
+		button.classList.add("icon-play");
+		button.parentNode.classList.add("btn-warning");
+	} else {
+		setup();
+		button.classList.add("icon-pause");
+		button.classList.remove("icon-play");
+		button.parentNode.classList.remove("btn-warning");
+	}
+}
+
+document.body.addEventListener("webkitAnimationEnd", function(ev) {
+	ev.target.classList && ev.target.classList.remove("pulse");
+});
+
+function cleanupQueue(queue) {
+	queue.lastEnqueued = queue.lastEnqueued || 0;
+	queue.lastDequeued = queue.lastDequeued || 0;
+	return queue;
+}
+
+function createQueueNode(queue) {
+	var div = document.createElement("div");
+	div.innerHTML = document.getElementById("queueTemplate").innerHTML;
+
+	var $ = function(x){ return div.querySelector(x); };
+	$(".queueBlock").setAttribute("data-queue-name", queue.name);
+	$(".leftOfQueue .date").innerHTML = queue.lastEnqueued?timeDifference(queue.now, queue.lastEnqueued):"";
+	$(".leftOfQueue .date").setAttribute("data-lastActivity", queue.lastEnqueued);
+	$(".rightOfQueue .date").innerHTML = queue.lastDequeued?timeDifference(queue.now, queue.lastDequeued):"";
+	$(".rightOfQueue .date").setAttribute("data-lastActivity", queue.lastDequeued);
+	$("h3").innerHTML = queue.name;
+	$("h2").innerHTML = formatCount(queue.count);
+
+	return div.childNodes[1];
+}
+
 
 function formatCount(count) {
 	return "<span style='color: " +
