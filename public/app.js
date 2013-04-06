@@ -6,6 +6,8 @@ function setup() {
 	source.addEventListener("queues", function(evt) {
 		var queues = JSON.parse(evt.data);
 
+		queues.sort(function(queue1, queue2) { return (queue1.name<queue2.name)?-1:(queue1.name>queue2.name?1:0) })
+
 		var frag = document.createDocumentFragment();
 
 		var frag = queues.reduce(function(frag, queue) {
