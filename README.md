@@ -12,7 +12,7 @@ Lets you monitor queue activity: when were items last added and removed from que
 Install qmin-monitor via git:
 
 ```
-git clone git@github.com:errorception/cumin-monitor.git
+git clone https://github.com/errorception/cumin-monitor.git
 cd cumin-monitor
 npm install
 ```
